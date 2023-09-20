@@ -97,7 +97,7 @@ export default class ConnectedChatroom extends Component<
 
       return await response.json();
     } catch (error) {
-      onsole.error('Error calling API', error);
+      console.error('Error calling API', error);
       return null; // или вы можете вернуть какое-то стандартное сообщение об ошибке
     }
   }
