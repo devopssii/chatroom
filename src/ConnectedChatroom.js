@@ -83,6 +83,24 @@ export default class ConnectedChatroom extends Component<
     }
   }
 
+  async callMyAPI(message) {
+    try {
+      const response = await fetch('YOUR_API_ENDPOINT_HERE', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message })
+      });
+
+      const responseData = await response.json();
+      // Теперь у вас есть данные от API, и вы можете обработать их как нужно
+    } catch (error) {
+    console.error('Error calling API', error);
+    // Обработайте ошибки вызова API здесь
+    }
+  }
+
   sendMessage = async (messageText: string) => {
     if (messageText === "") return;
 
