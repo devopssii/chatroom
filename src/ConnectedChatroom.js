@@ -83,6 +83,8 @@ export default class ConnectedChatroom extends Component<
     }
   }
 
+ // ...
+
   async callMyAPI(message) {
     try {
       const response = await fetch('YOUR_API_ENDPOINT_HERE', {
@@ -93,11 +95,10 @@ export default class ConnectedChatroom extends Component<
         body: JSON.stringify({ message })
       });
 
-      const responseData = await response.json();
-      // Теперь у вас есть данные от API, и вы можете обработать их как нужно
+      return await response.json();
     } catch (error) {
-    console.error('Error calling API', error);
-    // Обработайте ошибки вызова API здесь
+      onsole.error('Error calling API', error);
+      return null; // или вы можете вернуть какое-то стандартное сообщение об ошибке
     }
   }
 
@@ -113,7 +114,6 @@ export default class ConnectedChatroom extends Component<
 
     if (!this.props.messageBlacklist.includes(messageText)) {
       this.setState({
-        // Reveal all queued bot messages when the user sends a new message
         messages: [
           ...this.state.messages,
           ...this.state.messageQueue,
@@ -131,31 +131,22 @@ export default class ConnectedChatroom extends Component<
       this.setState({ waitingForBotResponse: false });
     }, this.props.waitingTimeout);
 
-    const rasaMessageObj = {
-      message: messageObj.message.text,
-      sender: this.props.userId
-    };
+    const apiResponse = await this.callMyAPI(messageText);
 
-    const fetchOptions = Object.assign({}, {
-      method: "POST",
-      body: JSON.stringify(rasaMessageObj),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    }, this.props.fetchOptions);
-
-    const response = await fetch(
-      `${this.props.host}/webhooks/rest/webhook`,
-      fetchOptions
-    );
-    const messages = await response.json();
-
-    this.parseMessages(messages);
+    if (apiResponse) {
+      this.parseMessages([{
+        text: apiResponse.message, // убедитесь, что "message" - это правильный ключ в вашем ответе API
+        sender_id: 'bot' // это предположение о том, какой ключ может быть использован для идентификации бота
+      }]);
+    }
 
     if (window.ga != null) {
       window.ga("send", "event", "chat", "chat-message-sent");
     }
   };
+
+// ...
+
 
   createNewBotMessage(botMessageObj: MessageType): ChatMessage {
     return {
