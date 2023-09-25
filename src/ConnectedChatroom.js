@@ -87,7 +87,7 @@ export default class ConnectedChatroom extends Component<
 
 async callMyAPI(message) {
    // Определяем конечную точку вашего API. Замените эту строку на URL вашего API.
-   const API_ENDPOINT = 'http://your-api-url.com/send_message';
+   const API_ENDPOINT = 'https://api.synlabs.pro/send_message';
 
    try {
      // Выполняем POST-запрос к вашему API.
