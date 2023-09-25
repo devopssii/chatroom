@@ -85,22 +85,43 @@ export default class ConnectedChatroom extends Component<
 
  // ...
 
-  async callMyAPI(message) {
-    try {
-      const response = await fetch('YOUR_API_ENDPOINT_HERE', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ message })
-      });
+async callMyAPI(message) {
+   // Определяем конечную точку вашего API. Замените эту строку на URL вашего API.
+   const API_ENDPOINT = 'http://your-api-url.com/send_message';
 
-      return await response.json();
-    } catch (error) {
-      console.error('Error calling API', error);
-      return null; // или вы можете вернуть какое-то стандартное сообщение об ошибке
-    }
-  }
+   try {
+     // Выполняем POST-запрос к вашему API.
+     const response = await fetch(API_ENDPOINT, {
+       method: 'POST',
+       headers: {
+         'Content-Type': 'application/json'
+       },
+       body: JSON.stringify({ message: message })
+     });
+
+     // Проверяем, был ли успешным ответ от сервера.
+     if (!response.ok) {
+       throw new Error(`API call failed with status ${response.status}`);
+     }
+
+     // Преобразуем ответ в JSON.
+     const jsonResponse = await response.json();
+
+     // Проверяем наличие поля "response" в ответе от сервера.
+     if (!jsonResponse.hasOwnProperty('response')) {
+       throw new Error("API response does not contain 'response' field.");
+     }
+
+     // Возвращаем сообщение от вашего API.
+     return jsonResponse.response;
+
+   } catch (error) {
+     console.error('Error calling API', error);
+     return "Извините, произошла ошибка. Пожалуйста, попробуйте позже."; // Стандартное сообщение об ошибке
+   }
+ }
+
+
 
   sendMessage = async (messageText: string) => {
     if (messageText === "") return;
