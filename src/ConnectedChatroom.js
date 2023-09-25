@@ -121,50 +121,50 @@ async callMyAPI(message) {
    }
  }
 
-
-
-  sendMessage = async (messageText: string) => {
+sendMessage = async (messageText: string) => {
     if (messageText === "") return;
 
     const messageObj = {
-      message: { type: "text", text: messageText },
-      time: Date.now(),
-      username: this.props.userId,
-      uuid: uuidv4()
+        message: { type: "text", text: messageText },
+        time: Date.now(),
+        username: this.props.userId,
+        uuid: uuidv4()
     };
 
     if (!this.props.messageBlacklist.includes(messageText)) {
-      this.setState({
-        messages: [
-          ...this.state.messages,
-          ...this.state.messageQueue,
-          messageObj
-        ],
-        messageQueue: []
-      });
+        this.setState({
+            messages: [
+                ...this.state.messages,
+                ...this.state.messageQueue,
+                messageObj
+            ],
+            messageQueue: []
+        });
     }
 
     this.setState({ waitingForBotResponse: true });
     if (this.waitingForBotResponseTimer != null) {
-      window.clearTimeout(this.waitingForBotResponseTimer);
+        window.clearTimeout(this.waitingForBotResponseTimer);
     }
     this.waitingForBotResponseTimer = setTimeout(() => {
-      this.setState({ waitingForBotResponse: false });
+        this.setState({ waitingForBotResponse: false });
     }, this.props.waitingTimeout);
 
-    const apiResponse = await this.callMyAPI(messageText);
+    // Используем функцию callMyAPI для отправки сообщения
+    const apiResponseMessage = await this.callMyAPI(messageText);
 
-    if (apiResponse) {
-      this.parseMessages([{
-        text: apiResponse.message, // убедитесь, что "message" - это правильный ключ в вашем ответе API
-        sender_id: 'bot' // это предположение о том, какой ключ может быть использован для идентификации бота
-      }]);
+    if (apiResponseMessage) {
+        this.parseMessages([{
+            text: apiResponseMessage,
+            sender_id: 'bot'
+        }]);
     }
 
     if (window.ga != null) {
-      window.ga("send", "event", "chat", "chat-message-sent");
+        window.ga("send", "event", "chat", "chat-message-sent");
     }
-  };
+};
+
 
 // ...
 
