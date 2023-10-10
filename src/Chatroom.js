@@ -138,47 +138,31 @@ export default class Chatroom extends Component<ChatroomProps, ChatroomState> {
     const message = this.getInputRef().value.trim();
     this.props.onSendMessage(message);
     this.setState({ inputValue: "" });
-  };
 
-  handleButtonClick = (message: string, payload: string) => {
-    if (this.props.onButtonClick != null) {
-      this.props.onButtonClick(message, payload);
+    // Добавлено: отправка сообщения на сервер и получение ответа
+    try {
+      const response = await fetch('http://localhost:5000/send_message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await response.json();
+
+      // Добавление сообщения бота в чат
+      this.props.messages.push({
+        message: { type: 'text', text: data.response },
+        username: 'bot',
+        time: Date.now(),
+        uuid: uuidv4()
+      });
+      this.forceUpdate(); // Принудительное обновление компонента для отображения нового сообщения
+    } catch (error) {
+      console.error('Error:', error);
     }
-    this.focusInput();
   };
-
-  groupMessages(messages: Array<ChatMessage>) {
-    if (messages.length === 0) return [];
-
-    let currentGroup = [messages[0]];
-    let lastTime = messages[0].time;
-    let lastUsername = messages[0].username;
-    let lastType = messages[0].message.type;
-    const groups = [currentGroup];
-
-    for (const message of messages.slice(1)) {
-      if (
-        // Buttons always have their own group
-        lastType === "button" ||
-        message.message.type === "button" ||
-        // Messages are grouped by user/bot
-        message.username !== lastUsername ||
-        // Only time-continuous messages are grouped
-        message.time > lastTime + GROUP_INTERVAL
-      ) {
-        // new group
-        currentGroup = [message];
-        groups.push(currentGroup);
-      } else {
-        // append to group
-        currentGroup.push(message);
-      }
-      lastTime = message.time;
-      lastUsername = message.username;
-      lastType = message.message.type;
-    }
-    return groups;
-  }
 
   handleInputChange = async (
     inputValue: string,
@@ -235,6 +219,9 @@ export default class Chatroom extends Component<ChatroomProps, ChatroomState> {
           ) : null}
         </form>
       </div>
+    );
+  }
+}
     );
   }
 }
