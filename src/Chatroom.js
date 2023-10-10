@@ -148,7 +148,10 @@ export default class Chatroom extends Component<ChatroomProps, ChatroomState> {
         },
         body: JSON.stringify({ message })
       });
-
+      
+      if (!response.ok) {
+        throw new Error('Network response was not ok ' + response.statusText);
+      }
       const data = await response.json();
 
       // Добавление сообщения бота в чат
